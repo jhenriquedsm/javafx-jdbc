@@ -1,13 +1,18 @@
 package jhenriquedsm.javafxjdbc;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.util.Callback;
 import jhenriquedsm.javafxjdbc.db.DbException;
 import jhenriquedsm.javafxjdbc.listeners.DataChangeListener;
+import jhenriquedsm.javafxjdbc.model.entities.Department;
 import jhenriquedsm.javafxjdbc.model.entities.Seller;
 import jhenriquedsm.javafxjdbc.model.exceptions.ValidationException;
+import jhenriquedsm.javafxjdbc.model.services.DepartmentService;
 import jhenriquedsm.javafxjdbc.model.services.SellerService;
 import jhenriquedsm.javafxjdbc.util.Alerts;
 import jhenriquedsm.javafxjdbc.util.Constraints;
@@ -23,6 +28,8 @@ public class SellerFormController implements Initializable {
     private Seller seller;
 
     private SellerService service;
+
+    private DepartmentService departmentService;
 
     private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
 
@@ -42,6 +49,9 @@ public class SellerFormController implements Initializable {
     private TextField txtBaseSalary;
 
     @FXML
+    private ComboBox<Department> comboBoxDepartment;
+
+    @FXML
     private Label labelErrorName;
 
     @FXML
@@ -59,12 +69,15 @@ public class SellerFormController implements Initializable {
     @FXML
     private Button btCancel;
 
+    private ObservableList<Department> observableList;
+
     public void setSeller(Seller seller) {
         this.seller = seller;
     }
 
-    public void serSellerService(SellerService service) {
+    public void setServices(SellerService service, DepartmentService departmentService) {
         this.service = service;
+        this.departmentService = departmentService;
     }
 
     public void subscribeDataChangeListener(DataChangeListener listener) {
@@ -128,6 +141,7 @@ public class SellerFormController implements Initializable {
         Constraints.setTextFieldDouble(txtBaseSalary);
         Constraints.setTextFieldMaxLength(txtEmail, 60);
         Utils.formatDatePicker(dpBirthDate, "dd/MM/yyyy");
+        initializeComboBoxDepartment();
     }
 
     public void updateFormData() {
@@ -142,6 +156,20 @@ public class SellerFormController implements Initializable {
         if (seller.getBirthDate() != null) {
             dpBirthDate.setValue(LocalDate.ofInstant(seller.getBirthDate().toInstant(), ZoneId.systemDefault()));
         }
+        if (seller.getDepartment() == null) {
+            comboBoxDepartment.getSelectionModel().selectFirst();
+        } else {
+            comboBoxDepartment.setValue(seller.getDepartment());
+        }
+    }
+
+    public void loadAssociatedObjects() {
+        if (departmentService == null) {
+            throw new IllegalStateException("DepartmentService was null");
+        }
+        List<Department> departments = departmentService.findAll();
+        observableList = FXCollections.observableArrayList(departments);
+        comboBoxDepartment.setItems(observableList);
     }
 
     private void setErrorMessages(Map<String, String> errors) {
@@ -149,5 +177,17 @@ public class SellerFormController implements Initializable {
         if (fields.contains("name")) {
             labelErrorName.setText(errors.get("name"));
         }
+    }
+
+    private void initializeComboBoxDepartment() {
+        Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
+            @Override
+            protected void updateItem(Department item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item.getName());
+            }
+        };
+        comboBoxDepartment.setCellFactory(factory);
+        comboBoxDepartment.setButtonCell(factory.call(null));
     }
 }
