@@ -13,12 +13,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import jdk.jshell.execution.Util;
 import jhenriquedsm.javafxjdbc.db.DbIntegrityException;
 import jhenriquedsm.javafxjdbc.listeners.DataChangeListener;
 import jhenriquedsm.javafxjdbc.model.entities.Seller;
-import jhenriquedsm.javafxjdbc.model.entities.Seller;
-import jhenriquedsm.javafxjdbc.model.services.SellerService;
 import jhenriquedsm.javafxjdbc.model.services.SellerService;
 import jhenriquedsm.javafxjdbc.util.Alerts;
 import jhenriquedsm.javafxjdbc.util.Utils;
@@ -104,26 +101,26 @@ public class SellerListController implements Initializable, DataChangeListener {
     }
 
     private void createDialogForm(Seller seller, String absoluteName, Stage parentStage) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
-//            Pane pane = loader.load();
-//
-//            SellerFormController controller = loader.getController();
-//            controller.setSeller(seller);
-//            controller.serSellerService(new SellerService());
-//            controller.subscribeDataChangeListener(this);
-//            controller.updateFormData();
-//
-//            Stage dialogStage = new Stage();
-//            dialogStage.setTitle("Enter Seller data");
-//            dialogStage.setScene(new Scene(pane));
-//            dialogStage.setResizable(false);
-//            dialogStage.initOwner(parentStage);
-//            dialogStage.initModality(Modality.WINDOW_MODAL);
-//            dialogStage.showAndWait();
-//        } catch (IOException e) {
-//            Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), Alert.AlertType.ERROR);
-//        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
+            Pane pane = loader.load();
+
+            SellerFormController controller = loader.getController();
+            controller.setSeller(seller);
+            controller.serSellerService(new SellerService());
+            controller.subscribeDataChangeListener(this);
+            controller.updateFormData();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Enter Seller data");
+            dialogStage.setScene(new Scene(pane));
+            dialogStage.setResizable(false);
+            dialogStage.initOwner(parentStage);
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     @Override
